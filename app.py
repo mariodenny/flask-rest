@@ -1,31 +1,24 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from dotenv import load_dotenv
+from extensions import db, migrate
 from routes import register_routes
 import os
 import importlib
 
 load_dotenv()
 
-db = SQLAlchemy()
-migrate = Migrate()
-
 def create_app():
     app = Flask(__name__)
 
-    # Database configurations
     DB_USER = os.getenv('DB_USER')
     DB_PASSWORD = os.getenv('DB_PASSWORD')
     DB_HOST = os.getenv('DB_HOST')
     DB_DATABASE = os.getenv('DB_DATABASE')
 
     app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
-    db.init_app(app)
-    migrate.init_app(app, db)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Import all models dynamically
+ 
     models_dir = os.path.join(os.path.dirname(__file__), 'models')
     if os.path.exists(models_dir):
         for filename in os.listdir(models_dir):
@@ -36,8 +29,17 @@ def create_app():
                 except Exception as e:
                     print(f"Failed to import {module_name}: {e}")
 
-    # Register routes
+    db.init_app(app)
+    migrate.init_app(app, db)
+
     register_routes(app)
+
+    with app.app_context():
+        print("Registered URLs:")
+        for rule in app.url_map.iter_rules():
+            print(f"{rule.endpoint} -> {rule.rule}")
+
+    print(f"Registered Blueprints: {app.blueprints}")
 
     return app
 
