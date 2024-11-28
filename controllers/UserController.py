@@ -22,15 +22,8 @@ class UserController(Controller):
             return jsonify({
                 'status': 'success',
                 'message': 'User registered successfully',
-                'data': user.to_dict()  
             }), 201
         except ValueError as e:
-            return jsonify({
-                'status': 'error',
-                'message': str(e)
-            }), 400
+            return ErrorHandler.err_value_error(str(e))
         except Exception as e:
-            return jsonify({
-                'status': 'error',
-                'message': str(e)
-            }), 500
+            return ErrorHandler.err_internal_server_error(str(e))
