@@ -2,6 +2,7 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime
 from .BaseService import BaseService
 from repositories.UserRepository import UserRepository
+from helper.JWTHelper import JWTHelper
 
 class UserService(BaseService):
     def __init__(self):
@@ -27,3 +28,23 @@ class UserService(BaseService):
         }
 
         return self.user_repository.store(user_data)
+    
+    def login(self,request_data:dict):
+        required_fields = ['email', 'password']
+        for field in required_fields:
+            if field not in request_data:
+                raise ValueError(f"Missing required field: {field}")
+            
+        user = self.user_repository.find_by_email(request_data['email'])
+        if user.email != request_data['email']:
+            raise ValueError("email or password missmatch")    
+        
+        access_token = JWTHelper.generate_access_token(user.name)
+
+        return {
+            "name" : user.name,
+            "email" : user.email,
+            "access_token" : access_token,
+        }
+
+         

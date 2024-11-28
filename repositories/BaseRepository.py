@@ -39,3 +39,14 @@ class BaseRepository:
         except Exception as e:
             self.session.rollback()
             raise e
+        
+    def firstrow(self, model_class, id:int):
+        try:
+            instance = model_class.query.get(id)
+            if instance:
+                self.session.query(instance).one()
+                self.session.commit()
+                return True
+            return False
+        except Exception as e:
+            raise e

@@ -49,3 +49,11 @@ class ErrorHandler:
             "status" : "failed",
             "message" :e,
         }), 400
+    
+    @staticmethod
+    def err_required_val():
+        return jsonify({
+            "code" : 400,
+            "status" : "failed",
+            "message" : "field required"
+        })

@@ -1,6 +1,6 @@
 from flask import Flask
 from dotenv import load_dotenv
-from extensions import db, migrate
+from extensions import db, migrate, jwt
 from routes import register_routes
 import os
 import importlib
@@ -14,10 +14,13 @@ def create_app():
     DB_PASSWORD = os.getenv('DB_PASSWORD')
     DB_HOST = os.getenv('DB_HOST')
     DB_DATABASE = os.getenv('DB_DATABASE')
+    JWT_SECRET_KEY = os.getenv('SECRET_KEY')
 
     app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # Add identity key for jwt
+    app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
  
     models_dir = os.path.join(os.path.dirname(__file__), 'models')
     if os.path.exists(models_dir):
@@ -41,6 +44,7 @@ def create_app():
 
     print(f"Registered Blueprints: {app.blueprints}")
 
+    jwt.init_app(app)
     return app
 
 if __name__ == '__main__':

@@ -27,3 +27,24 @@ class UserController(Controller):
             return ErrorHandler.err_value_error(str(e))
         except Exception as e:
             return ErrorHandler.err_internal_server_error(str(e))
+        
+    @staticmethod
+    @user_blueprint.route('/login', methods=['POST'])
+    def login():
+        try:    
+            request_data = request.get_json()
+            if not request_data:
+                return ErrorHandler.err_required_val()
+            
+            user = UserService().login(request_data)
+
+            return jsonify({
+                "code" : 200,
+                "message" : "request success",
+                "data" : user
+            })
+        
+        except ValueError as e:
+            return ErrorHandler.err_value_error(str(e))
+        except ValueError as e:
+            return ErrorHandler.err_internal_server_error(str(e))
