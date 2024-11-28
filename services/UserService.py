@@ -39,7 +39,7 @@ class UserService(BaseService):
         if user.email != request_data['email']:
             raise ValueError("email or password missmatch")    
         
-        access_token = JWTHelper.generate_access_token(user.name)
+        access_token = JWTHelper.generate_access_token(user.id)
 
         return {
             "name" : user.name,

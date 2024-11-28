@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from flask import Flask
 from dotenv import load_dotenv
 from extensions import db, migrate, jwt
@@ -18,10 +19,9 @@ def create_app():
 
     app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # Add identity key for jwt
     app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
- 
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
+
     models_dir = os.path.join(os.path.dirname(__file__), 'models')
     if os.path.exists(models_dir):
         for filename in os.listdir(models_dir):
@@ -36,13 +36,6 @@ def create_app():
     migrate.init_app(app, db)
 
     register_routes(app)
-
-    with app.app_context():
-        print("Registered URLs:")
-        for rule in app.url_map.iter_rules():
-            print(f"{rule.endpoint} -> {rule.rule}")
-
-    print(f"Registered Blueprints: {app.blueprints}")
 
     jwt.init_app(app)
     return app
